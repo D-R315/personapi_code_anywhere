@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,19 +30,23 @@ public class PersonDTO {
 	
 	@NotEmpty
 	@Size(min = 2, max = 100)
+	@ApiModelProperty(example = "Rodrigo")
 	private String firstname;
 	
 	@NotEmpty
 	@Size(min = 2, max = 100)
+	@ApiModelProperty(example = "Peleias")
 	private String lastname;
 	
 	@NotEmpty
 	@CPF
+	@ApiModelProperty(example = "257.026.380-00")
 	private String cpf;
 	
 	@NotNull
 	@Past
-	@JsonFormat(pattern = "dd/MM/yyyy")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@ApiModelProperty(example = "23/03/1988")
 	private LocalDate birthDate;
 	
 	@Valid

@@ -5,6 +5,7 @@ import javax.persistence.Enumerated;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class PhoneDTO {
 	
 	@NotEmpty
     @Size(min = 13, max = 14)
+	@ApiModelProperty(example = "(11)9999-9999")
 	private String number;
 
 }

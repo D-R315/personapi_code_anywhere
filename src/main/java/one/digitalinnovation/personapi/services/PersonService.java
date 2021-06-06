@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.AllArgsConstructor;
 import one.digitalinnovation.personapi.dto.mapper.PersonMapper;
@@ -27,6 +29,8 @@ public class PersonService {
 	
 	public MessageResponseDTO createPerson(PersonDTO personDTO) {
 		
+		verifyCpfExists(personDTO.getCpf());
+		
 		Person personToSave = personMapper.toModel(personDTO);
 		Person savedPerson = personRepository.save(personToSave);
 		
@@ -45,6 +49,15 @@ public class PersonService {
 	
 	public PersonDTO findById(Long id) throws PersonNotFoundException {
 		Person person = verifyIfExists(id);
+		return personMapper.toDTO(person);
+	}
+	
+	public PersonDTO findByCpf(String string) {
+		
+		String cpf = cpfReplace(string);
+		
+		Person person = personRepository.findByCpf(cpf)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CPF not found"));
 		return personMapper.toDTO(person);
 	}
 	
@@ -71,6 +84,22 @@ public class PersonService {
 				.orElseThrow(() -> new PersonNotFoundException(id));
 	}
 	
+	private void  verifyCpfExists(String cpf) {
+		if (personRepository.findByCpf(cpf).isPresent())
+				throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,"CPF already exits");
+		
+	}
+	
+	private String cpfReplace(String string) {
+		if (string.matches("^\\d{3}.\\d{3}.\\d{3}-\\d{2}$|\\d{11}")) {
+			return (string.length() == 11) ? 
+					string.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})","$1.$2.$3-$4") : 
+						string;
+
+		}
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid CPF format");
+
+	}
 	
 	private MessageResponseDTO createMessageResponse(Long id, String message) {
 		return MessageResponseDTO
